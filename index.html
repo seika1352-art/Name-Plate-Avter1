@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>言語交流会 | ネームプレート</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;color:#fff;font-synthesis:none}*{box-sizing:border-box}body{margin:0;min-height:100dvh;background:linear-gradient(145deg,#092449,#135e99 60%,#75c9ed)}button,input{font:inherit}button{cursor:pointer}.screen{min-height:100dvh}.setup{display:flex;align-items:center;justify-content:center;padding:28px 16px}.panel{width:min(100%,540px);padding:clamp(22px,5vw,40px);border:1px solid #ffffff30;border-radius:26px;background:#062a51a8;box-shadow:0 22px 60px #001d3d55;backdrop-filter:blur(14px)}h1{font-size:clamp(24px,5vw,32px);margin:0 0 8px;text-align:center;letter-spacing:.04em}.subtitle{text-align:center;color:#d4edff;font-size:14px;margin:0 0 30px}.field{margin:0 0 26px}.field-title{display:block;font-weight:700;font-size:15px;margin-bottom:12px}.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.choice{border:1px solid #ffffff55;border-radius:13px;background:#ffffff13;color:white;min-height:52px;padding:10px;transition:.15s}.choice[aria-pressed="true"]{background:#e3f7ff;color:#09375d;border-color:#fff;box-shadow:0 0 0 2px #8dd9ff55;font-weight:800}.flag-choice{display:flex;align-items:center;justify-content:center;gap:10px}.flag{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;font-size:26px;line-height:1.2}.name-input{width:100%;min-height:70px;border:2px solid #a2d8fa;border-radius:14px;background:#fff;color:#082d51;padding:14px 18px;font-size:clamp(24px,5vw,32px);font-weight:700;outline:none}.name-input:focus{box-shadow:0 0 0 4px #77d7ff55}.confirm{width:100%;border:0;border-radius:15px;min-height:60px;background:linear-gradient(90deg,#8ee2ff,#d9f6ff);color:#06385e;font-size:21px;font-weight:800;box-shadow:0 10px 25px #001b3450}.confirm:hover{filter:brightness(1.05)}.error{color:#ffe3a5;min-height:22px;font-size:13px;margin:8px 0 0}.display{position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:72px 28px 45px;background:linear-gradient(180deg,#a8eaff 0%,#62bfe9 38%,#2178bf 70%,#073a80 100%);overflow:hidden}.display:before{content:"";position:absolute;width:80vmax;height:80vmax;top:-55vmax;left:-20vmax;background:#ffffff22;border-radius:50%;pointer-events:none}.back{position:absolute;right:max(18px,env(safe-area-inset-right));top:max(18px,env(safe-area-inset-top));display:grid;place-items:center;width:52px;height:52px;border:1px solid #ffffff80;border-radius:50%;background:#073b7090;color:white;z-index:2}.back svg{width:26px;height:26px}.identity{display:flex;align-items:center;justify-content:center;gap:clamp(12px,3vw,25px);flex-wrap:wrap;margin-bottom:clamp(22px,6vh,52px);position:relative}.role{border:2px solid #ffffffb5;background:#063f7a88;border-radius:999px;padding:10px 26px;font-size:clamp(19px,3.4vw,34px);font-weight:800;letter-spacing:.08em}.display-flag{font-size:clamp(45px,8vw,78px);filter:drop-shadow(0 5px 8px #063e6855)}.display-name{position:relative;font-size:clamp(48px,10vw,150px);font-weight:900;line-height:1.2;letter-spacing:.035em;text-shadow:0 5px 18px #05375b70;overflow-wrap:anywhere;max-width:100%;white-space:pre-wrap}.hidden{display:none!important}@media (orientation:landscape) and (max-height:540px){.display{padding:30px 75px}.identity{margin-bottom:12px}.role{font-size:20px;padding:6px 20px}.display-flag{font-size:40px}.display-name{font-size:clamp(40px,12vh,90px)}.back{width:44px;height:44px}}@media (max-width:360px){.panel{padding:20px}.choice{font-size:14px}.flag-choice{gap:5px}}
+
+/* Spine player walking across the nameplate */
+.avatar-track{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
+#spineWalker{position:absolute;width:var(--avatar-size);height:calc(var(--avatar-size)*1.55);left:0;bottom:9%;will-change:transform;filter:drop-shadow(0 4px 5px #073c6777)}
+#spinePlayer{width:100%;height:100%;transform-origin:center center}
+#spinePlayer canvas{display:block;width:100%!important;height:100%!important}
+.display{--avatar-size:clamp(48px,10vw,150px)}
+.identity,.display-name{z-index:2}
+#avatarError{position:absolute;bottom:4px;left:10px;right:10px;color:#fff;font-size:12px;z-index:4;pointer-events:none}
+</style>
+</head>
+<body>
+<main>
+<section class="screen setup" id="setupScreen"><div class="panel"><h1>言語交流会</h1><p class="subtitle">WEB ネームプレート</p><form id="nameForm"><div class="field"><span class="field-title">役職を選択</span><div class="choices" id="roleChoices" aria-label="役職"></div></div><div class="field"><span class="field-title">ネイティブの国・地域を選択</span><div class="choices" id="countryChoices" aria-label="国・地域"></div></div><div class="field"><label class="field-title" for="nameInput">お名前</label><input class="name-input" id="nameInput" type="text" maxlength="40" placeholder="お名前を入力" autocomplete="name"><p class="error" id="error" role="alert"></p></div><button class="confirm" id="confirmButton" type="button" onclick="showNameplate()">決定</button></form></div></section>
+<section class="screen display hidden" id="displayScreen" aria-label="ネームプレート"><button class="back" id="backButton" type="button" aria-label="設定画面に戻る"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg></button><div class="avatar-track" aria-hidden="true"><div id="spineWalker"><div id="spinePlayer"></div></div><div id="avatarError"></div></div><div class="identity"><span class="role" id="displayRole"></span><span class="display-flag flag" id="displayFlag"></span></div><div class="display-name" id="displayName"></div></section>
+</main>
+<script>
+var selectedRole = 'メンバー';
+var selectedCountry = '台湾';
+var countryFlags = [['台湾','🇹🇼'],['日本','🇯🇵'],['アメリカ','🇺🇸'],['イギリス','🇬🇧'],['韓国','🇰🇷'],['フランス','🇫🇷'],['スペイン','🇪🇸'],['ドイツ','🇩🇪']];
+function el(id) { return document.getElementById(id); }
+function createChoices() {
+  var roles = ['会長','副会長','リーダー','メンバー'];
+  var roleArea = el('roleChoices');
+  var countryArea = el('countryChoices');
+  roleArea.innerHTML = '';
+  countryArea.innerHTML = '';
+  roles.forEach(function(value) {
+    var button = document.createElement('button');
+    button.type = 'button'; button.className = 'choice';
+    button.textContent = value;
+    button.setAttribute('aria-pressed', String(selectedRole === value));
+    button.onclick = function() { selectedRole = value; createChoices(); };
+    roleArea.appendChild(button);
+  });
+  countryFlags.forEach(function(item) {
+    var button = document.createElement('button');
+    button.type = 'button'; button.className = 'choice flag-choice';
+    button.textContent = item[1] + ' ' + item[0];
+    button.setAttribute('aria-pressed', String(selectedCountry === item[0]));
+    button.onclick = function() { selectedCountry = item[0]; createChoices(); };
+    countryArea.appendChild(button);
+  });
+}
+function showNameplate() {
+  var name = el('nameInput').value.trim();
+  if (!name) {
+    el('error').textContent = 'お名前を入力してください。';
+    el('nameInput').focus();
+    return;
+  }
+  el('error').textContent = '';
+  el('displayRole').textContent = selectedRole;
+  for (var i = 0; i < countryFlags.length; i++) {
+    if (countryFlags[i][0] === selectedCountry) {
+      el('displayFlag').textContent = countryFlags[i][1];
+      break;
+    }
+  }
+  el('displayName').textContent = name;
+  el('setupScreen').style.display = 'none';
+  el('displayScreen').classList.remove('hidden');
+  el('displayScreen').style.display = 'flex';
+  window.scrollTo(0, 0);
+}
+function backToSettings() {
+  el('displayScreen').style.display = 'none';
+  el('setupScreen').style.display = 'flex';
+  window.scrollTo(0, 0);
+}
+el('backButton').onclick = backToSettings;
+el('nameForm').onsubmit = function(e) { if (e) e.preventDefault(); showNameplate(); return false; };
+createChoices();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@esotericsoftware/spine-player@4.2/dist/iife/spine-player.js"></script>
+<script>
+(function(){
+let started=false, px=0, direction=1, last=0;
+const walker=document.getElementById('spineWalker');
+const stage=document.getElementById('displayScreen');
+function fail(message){document.getElementById('avatarError').textContent=message;}
+function start(){
+ if(started)return;
+ if(!window.spine||!window.spine.SpinePlayer){fail('Spine Playerを読み込めません。インターネット接続を確認してください。');return;}
+ started=true;
+ try{
+   const atlasUrl='./AbaterNew1.atlas';
+   const jsonUrl='./AbaterNew1.json';
+   new window.spine.SpinePlayer('spinePlayer',{
+      jsonUrl:jsonUrl,atlasUrl:atlasUrl,animation:'Walk',loop:true,
+      showControls:false,alpha:true,backgroundColor:'#00000000',
+      viewport:{x:-950,y:-1450,width:2000,height:3100,padLeft:0,padRight:0,padTop:0,padBottom:0},
+      error:function(player,reason){fail('アバター読み込みエラー: '+String(reason||''));}
+   });
+   requestAnimationFrame(move);
+ }catch(e){fail('アバター初期化エラー: '+e.message);}
+}
+function move(t){
+ if(!last)last=t;
+ const dt=Math.min(t-last,50);last=t;
+ if(!stage.classList.contains('hidden')&&stage.style.display!=='none'){
+   const width=walker.offsetWidth;
+   const max=Math.max(0,stage.clientWidth-width);
+   px+=direction*dt*0.065;
+   if(px>=max){px=max;direction=-1;}
+   if(px<=0){px=0;direction=1;}
+   walker.style.transform='translateX('+px+'px)';
+   document.getElementById('spinePlayer').style.transform=direction===1?'scaleX(1)':'scaleX(-1)';
+ }
+ requestAnimationFrame(move);
+}
+const old=window.showNameplate;
+window.showNameplate=function(){old();if(!stage.classList.contains('hidden'))start();};
+})();
+</script></body></html>
